@@ -1,0 +1,123 @@
+# Imagen basada en Ubuntu, icluye ssh para conecciones al IIB
+image: kurojiyu/img_ssh:latest
+
+# Busca el nombre con la extencion {.bar}, si hay 2 tomara el primero
+before_script:
+  - cd $CI_PROJECT_NAME
+  - export BarFileName=`find -iname '*.bar' | head -1`
+
+# Indicar el nombre del Integration Server donde se quiere hacer el deploy
+variables:
+    IntegrationServer: "MultiMisc"
+
+# Lista de las etapas que se ejecutaran durante el proceso, cada etapa puede tener n jobs,
+#    cada job puede ejecutarse en paralelo si se encuentran en la misma etapa.
+#
+# verify: Verifica la existencia del Integration Server
+#
+# build: Envia el archivo .bar al servidor del IIB
+#
+# deploy: Ejecuta el comando mqsideploy tomando el archivo .bar en el Integration Server
+#
+# clean: elimina el archivo .bar del servidor
+stages:
+  - verify
+  - build
+  - deploy
+  - clean
+
+verify_IS_DEVL:
+  stage: verify
+  script:
+    - $D_SSH_CHECK_IS $IntegrationServer
+  only:
+    refs:
+      - master
+    changes:
+# Cambiar el nombre, por el nombre del proyecto
+      - getBrokerInfo/*.bar
+
+verify_IS_PPRD:
+  stage: verify
+  script:
+    - $Q_SSH_CHECK_IS $IntegrationServer
+  only:
+    refs:
+      - pprd
+    changes:
+# Cambiar el nombre, por el nombre del proyecto
+      - getBrokerInfo/*.bar
+
+sendFiles_DEVL:
+  stage: build
+  script:
+    - $SSH_ALGORITHM $BarFileName $D_SSH_CREDENTIALS
+  when: on_success
+  retry: 2
+  only:
+    refs:
+      - master
+    changes:
+# Cambiar el nombre, por el nombre del proyecto
+      - getBrokerInfo/*.bar
+
+sendFiles_PPRD:
+  stage: build
+  script:
+    - $SSH_ALGORITHM $BarFileName $Q_SSH_CREDENTIALS
+  when: on_success
+  retry: 2
+  only:
+    refs:
+      - pprd
+    changes:
+# Cambiar el nombre, por el nombre del proyecto
+      - getBrokerInfo/*.bar
+
+deploy_DEVL:
+  stage: deploy
+  script:
+    - $D_SSH_DEPLOY $BarFileName $IntegrationServer
+  when: on_success
+  only:
+    refs:
+      - master
+    changes:
+# Cambiar el nombre, por el nombre del proyecto
+      - getBrokerInfo/*.bar
+
+deploy_PPRD:
+  stage: deploy
+  script:
+    - $Q_SSH_DEPLOY $BarFileName $IntegrationServer
+  when: on_success
+  only:
+    refs:
+      - pprd
+    changes:
+# Cambiar el nombre, por el nombre del proyecto
+      - getBrokerInfo/*.bar
+
+clean_DEVL:
+  stage: clean
+  script:
+    - $D_SSH_CLEAN $BarFileName
+  when: on_success
+  only:
+    refs:
+      - master
+    changes:
+# Cambiar el nombre, por el nombre del proyecto
+      - getBrokerInfo/*.bar
+
+clean_PPRD:
+  stage: clean
+  script: 
+    - $Q_SSH_CLEAN $BarFileName
+  when: on_success
+  only:
+    refs:
+      - pprd
+    changes:
+# Cambiar el nombre, por el nombre del proyecto
+      - getBrokerInfo/*.bar
