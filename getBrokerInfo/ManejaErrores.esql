@@ -1,0 +1,182 @@
+
+CREATE COMPUTE MODULE ManejaErrores
+	/*
+	 * id:     referencia al catalogo de errores definidos por el equipo
+	 * status: código de estatus HTTP
+	 * title:  descripción generica (base de datos/ autenticación, parametros, etc.)
+	 * detail: mensaje para usuario (técnico)
+	 * source: lugar dentro del flujo o subflujo en donde ocurrio el error
+	 */ 
+	DECLARE id INT;
+ 	DECLARE status CHAR;
+ 	DECLARE title  CHAR;
+    DECLARE detail CHAR;
+    DECLARE source CHAR;
+	    
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN 
+		CALL getLastExceptionDetail();
+	 	 
+/*
+ *  					----- IMPORTANTE -----
+ * 
+ * Los codigos 2XXX, 3XXX son para el manejo de errores provenientes del IIB.
+ * 
+ * Ej. Fallo en nodos compute por falta de DSN.
+ *     TimeOut en nodos request
+ *     Procedimientos no encontrados en la Base de Datos
+ *     etc.... 
+ */
+ 		CASE id 
+	 	WHEN 2702 THEN 
+        	SET status = '401';
+        	SET title = 'The request requires user authentication.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 401;
+	 	WHEN 2703 THEN 
+        	SET status = '401';
+        	SET title = 'The request requires user authentication.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 401;
+	 	WHEN 2725 THEN 
+        	SET status = '401';
+        	SET title = 'The request requires user authentication.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 401;
+	 	WHEN 2322 THEN 
+        	SET status = '500';
+        	SET title = 'Error de Base de Datos.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 500;
+	 	WHEN 2323 THEN
+        	SET status = '500';
+        	SET title = 'Error en el flujo.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 500;
+	 	WHEN 2920 THEN  
+    		SET status = '500';
+        	SET title = 'Error en procedimiento.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 500;
+        WHEN 2921 THEN  
+        	SET status = '500';
+        	SET title = 'Error de Base de Datos.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 500; 
+	 	WHEN 3151 THEN 
+        	SET status = '408';
+        	SET title = 'Request Timeout.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 415;
+ 		WHEN 5701 THEN 
+        	SET status = '403';
+        	SET title  = 'Forbidden.';
+        	--SET detail = 'A JSON parsing error has occurred whilst parsing the JSON document 1';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 403;
+        WHEN 5702 THEN 
+        	SET status = '403';
+        	SET title  = 'Forbidden.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 403;
+        
+       
+ -- 9K ERRORS   	
+        
+	 	WHEN 9900 THEN 
+        	SET status = '400';
+        	SET title = 'Bad Request.';
+        	IF CONTAINS(detail, ',') THEN
+        		SET detail = 'Faltan parámetros: ' || detail;
+        	ELSE
+        		SET detail = 'Falta parámetro: ' || detail;
+        	END IF;
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 400;
+	 	WHEN 9901 THEN 
+        	SET status = '400'; /* Se ajustó de 401 a 400, para que siguieran funcionando las URIs existentes */
+        	SET title = 'Bad Request.';
+        	SET detail = 'Los datos de entrada están incompletos: falta parámetro';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 400;
+           	
+        -- Error utilizado para errores "controlados" dentro de StoredProcedures
+        WHEN 9902 THEN
+        	SET status = '204'; /* Se ajustó de 500 a 204, para que siguieran funcionando las URIs existentes */
+        	SET title = 'No Content.';
+        	SET detail = 'No data found';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 204;
+        WHEN 9903 THEN 
+        	SET status = '403';
+        	SET title = 'Forbidden.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 403;
+	 	WHEN 9904 THEN
+        	SET status = '404';
+        	SET title = 'Not Found.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 404;
+	 	WHEN 9906 THEN 
+        	SET status = '406';
+        	SET title = 'Not Acceptable.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 406;
+        WHEN 9907 THEN
+        	SET status = '404';
+        	SET title = 'Not Found.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 404;
+        WHEN 9909 THEN
+        	SET status = '409';
+        	SET title  = 'Conflict.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 409;
+        WHEN 9915 THEN
+        	SET status = '415';
+        	SET title = 'Unsupported Media Type.';
+        	SET detail = detail ||' no es valido';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 415;
+        WHEN 9960 THEN
+        	SET status = '400';
+        	SET title = 'Bad Request.';
+           	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 400;
+	 	ELSE
+	     	SET status = '500';
+	    	SET title = 'Internal Server Error.';
+	       	SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 500;
+	 	END CASE;
+	 	CALL createGenJSON();
+	END;
+	
+	/*
+	 * Procedimiento para crear el JSON de salida basico
+	 */
+	CREATE PROCEDURE createGenJSON()
+	BEGIN
+		SET OutputRoot.HTTPReplyHeader."Content-Type" = 'application/vnd.api+json';
+		
+		CREATE FIELD OutputRoot.JSON.Data.errors IDENTITY(JSON.Array)errors;
+		
+		SET OutputRoot.JSON.Data.errors.item[1].id  	= id;
+		SET OutputRoot.JSON.Data.errors.item[1].title 	= title;
+		SET OutputRoot.JSON.Data.errors.item[1].status  = status;
+		SET OutputRoot.JSON.Data.errors.item[1].detail  = NULLIF(detail,'');
+		SET OutputRoot.JSON.Data.errors.item[1].source  = source;
+	END;
+	
+    /*
+	 * Procedimiento que obtendrá los detalles de la última excepción
+	 * IN InputTree:     La lista de excepciones entrante
+	 * IN messageNumber: El último número de mensaje
+	 * IN messageText:   El último texto de mensaje.
+	 */    
+	CREATE PROCEDURE getLastExceptionDetail()	 
+	BEGIN
+   	    -- Crear una referencia al primer hijo de la lista de excepciones
+   	    DECLARE ptrException reference to InputExceptionList.*[1];
+   	    
+    	X:WHILE lastmove(ptrException) DO
+			-- identifica cuando esta dentro de la excepcion de usuario
+			IF ptrException.Number <> '' THEN
+				SET id = ptrException.Number;
+			END IF;
+			IF ptrException.Label <> '' THEN
+				SET source = '../ '||REPLACE(ptrException.Label, '.', ' / ');
+			END IF;
+			-- almacenar los valores actuales para el número de error y el texto
+			IF CARDINALITY(ptrException.Insert[])>0 THEN
+				SET detail = '';
+				SET detail = ptrException.Text;
+				MOVE ptrException FIRSTCHILD TYPE Name NAME 'Insert';
+				SET detail = detail ||' '|| ptrException.Text;
+				SET detail = TRIM(LEADING FROM REPLACE(detail,'User generated exception',''));
+				MOVE ptrException PARENT;
+			END IF;
+			MOVE ptrException LASTCHILD;
+		END WHILE; 
+	END;
+END MODULE;
+

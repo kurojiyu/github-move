@@ -1,0 +1,10 @@
+
+
+CREATE COMPUTE MODULE getBrokerInfo_nombraArchivo_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN 
+	BEGIN
+		SET OutputLocalEnvironment.Wildcard.WildcardMatch = 'getBrokerInfo';
+		RETURN TRUE;
+	END;
+	
+END MODULE;
