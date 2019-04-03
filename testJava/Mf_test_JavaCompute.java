@@ -63,7 +63,7 @@ public class Mf_test_JavaCompute extends MbJavaComputeNode {
 		 	
 		 	try {
 		 		
-		 		SimpleDateFormat utcFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		 		SimpleDateFormat utcFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
 		 		
 		        Enumeration<ExecutionGroupProxy> executionGroupProxy;
 		        Enumeration<ApplicationProxy> applicationProxy;
