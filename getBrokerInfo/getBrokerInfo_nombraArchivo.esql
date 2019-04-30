@@ -1,22 +1,49 @@
 
-
-CREATE COMPUTE MODULE getBrokerInfo_nombraArchivo
+CREATE COMPUTE MODULE getBrokerInfo_nombraInfoBroker
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
-		-- CALL CopyMessageHeaders();
 		CALL CopyEntireMessage();
-		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName;
+		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_InfoBroker';
 		RETURN TRUE;
 	END;
 
-	CREATE PROCEDURE CopyMessageHeaders() BEGIN
-		DECLARE I INTEGER 1;
-		DECLARE J INTEGER;
-		SET J = CARDINALITY(InputRoot.*[]);
-		WHILE I < J DO
-			SET OutputRoot.*[I] = InputRoot.*[I];
-			SET I = I + 1;
-		END WHILE;
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE getBrokerInfo_nombraInfoFlows
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyEntireMessage();
+		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_InfoFlows';
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE getBrokerInfo_nombraInfoINode
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyEntireMessage();
+		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_InfoINode';
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+CREATE COMPUTE MODULE getBrokerInfo_nombraInfoINode2
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyEntireMessage();
+		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_InfoINode2';
+		RETURN TRUE;
 	END;
 
 	CREATE PROCEDURE CopyEntireMessage() BEGIN
