@@ -3,8 +3,7 @@
 	<name>getBrokerInfo</name>
 	<comment></comment>
 	<projects>
-		<project>BrokerInfo</project>
-		<project>testJava</project>
+		<project>getBrokerInfoJava</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

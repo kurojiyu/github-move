@@ -25,8 +25,4 @@ CREATE COMPUTE MODULE getBrokerInfo_GeneraRespuesta_Compute
 			SET I = I + 1;
 		END WHILE;
 	END;
-
-	CREATE PROCEDURE CopyEntireMessage() BEGIN
-		SET OutputRoot = InputRoot;
-	END;
 END MODULE;
