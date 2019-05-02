@@ -8,7 +8,7 @@ before_script:
 
 # Indicar el nombre del Integration Server donde se quiere hacer el deploy
 variables:
-    IntegrationServer: "MultiMisc"
+    IntegrationServer: "IntegrationManagement"
 
 # Lista de las etapas que se ejecutaran durante el proceso, cada etapa puede tener n jobs,
 #    cada job puede ejecutarse en paralelo si se encuentran en la misma etapa.

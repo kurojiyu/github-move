@@ -9,16 +9,18 @@
 	</xsd:annotation>
 
 
-	<xsd:element ibmSchExtn:docRoot="true" name="DFDL_infoInode">
+	<xsd:element ibmSchExtn:docRoot="true" name="DFDL_NodesInfo">
 		<xsd:complexType>
 			<xsd:sequence dfdl:separator="">
 				<xsd:element dfdl:occursCountKind="implicit" dfdl:terminator="%CR;%LF;%WSP*;" maxOccurs="unbounded" minOccurs="0" name="record">
 					<xsd:complexType>
 						<xsd:sequence dfdl:separatorSuppressionPolicy="trailingEmpty">
 							<xsd:element ibmDfdlExtn:sampleValue="value1" name="BrokerName" type="xsd:string"/>
-							<xsd:element ibmDfdlExtn:sampleValue="value2" name="Type" type="xsd:string"/>
-							<xsd:element ibmDfdlExtn:sampleValue="value3" name="Name" type="xsd:string"/>
-						</xsd:sequence>
+							<xsd:element ibmDfdlExtn:sampleValue="value2" name="ApplicationName" type="xsd:string"/>
+							<xsd:element ibmDfdlExtn:sampleValue="value3" name="Node" type="xsd:string"/>
+                            <xsd:element ibmDfdlExtn:sampleValue="value4" name="Property" type="xsd:string"/>
+                            <xsd:element ibmDfdlExtn:sampleValue="value5" name="Value" type="xsd:string"/>
+                        </xsd:sequence>
 					</xsd:complexType>
 				</xsd:element>				
 			</xsd:sequence>

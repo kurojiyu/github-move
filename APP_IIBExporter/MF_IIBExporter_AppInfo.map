@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?><mappingRoot xmlns="http://www.ibm.com/2008/ccl/Mapping" domainID="com.ibm.msl.mapping.xml" domainIDExtension="mb" mainMap="true" targetNamespace="default" version="8.0.5.0" xmlns:map="default">
-    <inlinedXMLSchema targetNamespace="http://www.ibm.com/iib/msl/json"><![CDATA[<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.ibm.com/iib/msl/json">  
-    <xsd:complexType block="#all" name="JSONArray_1">  
-    <xsd:sequence>  
-      <xsd:element maxOccurs="unbounded" minOccurs="0" name="Item" nillable="true">  
-        <xsd:complexType>  
-          <xsd:sequence>  
-            <xsd:element name="BrokerName" nillable="true" type="xsd:string"/>  
-            <xsd:element name="IntegrationName" nillable="true" type="xsd:string"/>  
-            <xsd:element name="ApplicationName" nillable="true" type="xsd:string"/>  
-            <xsd:element name="Type" nillable="true" type="xsd:string"/>  
-            <xsd:element name="DeployTime" nillable="true" type="xsd:string"/>  
-            <xsd:element name="AdditionalInstances" nillable="true" type="xsd:string"/>  
-            <xsd:element name="SecurityProfileName" nillable="true" type="xsd:string"/>  
-          </xsd:sequence>  
-        </xsd:complexType>  
-      </xsd:element>  
-    </xsd:sequence>  
-  </xsd:complexType>  
+    <inlinedXMLSchema targetNamespace="http://www.ibm.com/iib/msl/json"><![CDATA[<?xml version="1.0" encoding="UTF-8"?><xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.ibm.com/iib/msl/json">      
+    <xsd:complexType block="#all" name="JSONArray_1">      
+    <xsd:sequence>      
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="Item" nillable="true">      
+        <xsd:complexType>      
+          <xsd:sequence>      
+            <xsd:element name="BrokerName" nillable="true" type="xsd:string"/>      
+            <xsd:element name="IntegrationName" nillable="true" type="xsd:string"/>      
+            <xsd:element name="ApplicationName" nillable="true" type="xsd:string"/>      
+            <xsd:element name="Type" nillable="true" type="xsd:string"/>      
+            <xsd:element name="DeployTime" nillable="true" type="xsd:string"/>      
+            <xsd:element name="AdditionalInstances" nillable="true" type="xsd:string"/>      
+            <xsd:element name="SecurityProfileName" nillable="true" type="xsd:string"/>      
+          </xsd:sequence>      
+        </xsd:complexType>      
+      </xsd:element>      
+    </xsd:sequence>      
+  </xsd:complexType>      
 </xsd:schema>]]></inlinedXMLSchema>
     <input path="jar:file://!com/ibm/etools/mft/map/xsds/predefined/JsonDomainMsg.xsd" var="var1"/>
     <input inlinedXMLSchema="true" path="../schema_0.xsd" targetNamespace="http://www.ibm.com/iib/msl/json" var="var2"/>
-    <output path="/DFDL_infoBroker/DFDL_infoBroker.xsd" var="var"/>
+    <output path="/DFDL_AppInfo/DFDL_AppInfo.xsd"/>
     <namespaces>
         <namespace kind="supplement" prefix="in" uri="http://www.ibm.com/iib/msl/json"/>
         <namespace kind="supplement" prefix="in2" uri="info.broker"/>
     </namespaces>
     <generation engine="xquery"/>
-    <mappingDeclaration name="getBrokerInfo_Mapping_infoBroker">
+    <mappingDeclaration name="MF_IIBExporter_AppInfo">
         <input namespace="http://www.ibm.com/iib/msl/json" path="$var1/mb:msg(JSON,assembly,JSON,Properties)" var="MessageAssembly">
             <cast castType="userDefined" path="$MessageAssembly/JSON/Data/type('anyType')" qualifier="{http://www.ibm.com/iib/msl/json}JSONArray_1" ref="var2"/>
         </input>
-        <output path="$var/mb:msg(DFDL_infoBroker,assembly,DFDL,Properties)" var="MessageAssembly1"/>
+        <output path="mb:msg(DFDL_AppInfo,assembly,DFDL,Properties)" var="MessageAssembly1"/>
         <move>
             <input path="$MessageAssembly/Properties"/>
             <output path="$MessageAssembly1/Properties"/>
             <override>
-                <assign value="{}:DFDL_infoBroker">
+                <assign value="{}:DFDL_AppInfo">
                     <output path="$MessageAssembly1/Properties/MessageType"/>
                 </assign>
             </override>
         </move>
         <local>
             <input path="$MessageAssembly/JSON/spath('Data',2)"/>
-            <output path="$MessageAssembly1/DFDL_infoBroker"/>
+            <output path="$MessageAssembly1/DFDL_AppInfo"/>
             <foreach>
                 <input path="Item"/>
                 <output path="record"/>
