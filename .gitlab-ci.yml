@@ -35,7 +35,7 @@ verify_IS_DEVL:
       - master
     changes:
 # Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
+      - APP_IIBExporter/*.bar
 
 verify_IS_PPRD:
   stage: verify
@@ -46,7 +46,7 @@ verify_IS_PPRD:
       - pprd
     changes:
 # Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
+      - APP_IIBExporter/*.bar
 
 sendFiles_DEVL:
   stage: build
@@ -59,7 +59,7 @@ sendFiles_DEVL:
       - master
     changes:
 # Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
+      - APP_IIBExporter/*.bar
 
 sendFiles_PPRD:
   stage: build
@@ -72,7 +72,7 @@ sendFiles_PPRD:
       - pprd
     changes:
 # Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
+      - APP_IIBExporter/*.bar
 
 deploy_DEVL:
   stage: deploy
@@ -84,7 +84,7 @@ deploy_DEVL:
       - master
     changes:
 # Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
+      - APP_IIBExporter/*.bar
 
 deploy_PPRD:
   stage: deploy
@@ -96,7 +96,7 @@ deploy_PPRD:
       - pprd
     changes:
 # Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
+      - APP_IIBExporter/*.bar
 
 clean_DEVL:
   stage: clean
@@ -108,7 +108,7 @@ clean_DEVL:
       - master
     changes:
 # Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
+      - APP_IIBExporter/*.bar
 
 clean_PPRD:
   stage: clean
@@ -120,4 +120,4 @@ clean_PPRD:
       - pprd
     changes:
 # Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
+      - APP_IIBExporter/*.bar
