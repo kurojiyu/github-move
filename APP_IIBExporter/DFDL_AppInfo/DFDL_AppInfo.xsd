@@ -9,7 +9,7 @@
 	</xsd:annotation>
 
 
-	<xsd:element ibmSchExtn:docRoot="true" name="DFDL_infoBroker">
+	<xsd:element ibmSchExtn:docRoot="true" name="DFDL_AppInfo">
 		<xsd:complexType>
 			<xsd:sequence dfdl:separator="">
 				<xsd:element dfdl:occursCountKind="implicit" dfdl:terminator="%CR;%LF;%WSP*;" maxOccurs="unbounded" minOccurs="0" name="record">

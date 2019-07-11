@@ -1,9 +1,9 @@
 
-CREATE COMPUTE MODULE getBrokerInfo_nombraInfoBroker
+CREATE COMPUTE MODULE MF_IIBExporter_nombraAppInfo
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
 		CALL CopyEntireMessage();
-		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_InfoBroker';
+		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_AppInfo';
 		RETURN TRUE;
 	END;
 
@@ -12,11 +12,11 @@ CREATE COMPUTE MODULE getBrokerInfo_nombraInfoBroker
 	END;
 END MODULE;
 
-CREATE COMPUTE MODULE getBrokerInfo_nombraInfoFlows
+CREATE COMPUTE MODULE MF_IIBExporter_nombraNodesInfo
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
 		CALL CopyEntireMessage();
-		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_InfoFlows';
+		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_NodesInfo';
 		RETURN TRUE;
 	END;
 
@@ -25,11 +25,11 @@ CREATE COMPUTE MODULE getBrokerInfo_nombraInfoFlows
 	END;
 END MODULE;
 
-CREATE COMPUTE MODULE getBrokerInfo_nombraInfoINode
+CREATE COMPUTE MODULE MF_IIBExporter_nombraConfigInfo
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
 		CALL CopyEntireMessage();
-		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_InfoINode';
+		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_ConfigInfo';
 		RETURN TRUE;
 	END;
 
@@ -38,11 +38,11 @@ CREATE COMPUTE MODULE getBrokerInfo_nombraInfoINode
 	END;
 END MODULE;
 
-CREATE COMPUTE MODULE getBrokerInfo_nombraInfoINode2
+CREATE COMPUTE MODULE MF_IIBExporter_nombraConfigInfo2
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
 		CALL CopyEntireMessage();
-		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_InfoINode2';
+		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_ConfigInfo2';
 		RETURN TRUE;
 	END;
 

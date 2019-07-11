@@ -1,6 +1,6 @@
 
 
-CREATE COMPUTE MODULE getBrokerInfo_GeneraRespuesta_Compute
+CREATE COMPUTE MODULE MF_IIBExporter_GeneraRespuesta_Compute
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
 		CALL CopyMessageHeaders();
