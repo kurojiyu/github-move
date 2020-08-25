@@ -3,7 +3,7 @@ CREATE COMPUTE MODULE MF_IIBExporter_nombraAppInfo
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
 		CALL CopyEntireMessage();
-		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_AppInfo';
+		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_Alestra_AppInfo';
 		RETURN TRUE;
 	END;
 
@@ -16,7 +16,7 @@ CREATE COMPUTE MODULE MF_IIBExporter_nombraNodesInfo
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
 		CALL CopyEntireMessage();
-		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_NodesInfo';
+		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_Alestra_NodesInfo';
 		RETURN TRUE;
 	END;
 
@@ -29,7 +29,7 @@ CREATE COMPUTE MODULE MF_IIBExporter_nombraConfigInfo
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
 		CALL CopyEntireMessage();
-		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_ConfigInfo';
+		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_Alestra_ConfigInfo';
 		RETURN TRUE;
 	END;
 
@@ -42,7 +42,7 @@ CREATE COMPUTE MODULE MF_IIBExporter_nombraConfigInfo2
 	CREATE FUNCTION Main() RETURNS BOOLEAN
 	BEGIN
 		CALL CopyEntireMessage();
-		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_ConfigInfo2';
+		SET OutputLocalEnvironment.Wildcard.WildcardMatch = BrokerName||'_Alestra_ConfigInfo2';
 		RETURN TRUE;
 	END;
 
