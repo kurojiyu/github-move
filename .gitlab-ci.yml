@@ -1,124 +1,164 @@
-# Imagen basada en Ubuntu, icluye ssh para conecciones al IIB
-image: kurojiyu/img_ssh:latest
+# imagen base alpine con openssh  
+image: alpine/ssh-client:1.0
 
-# Busca el nombre con la extencion {.bar}, si hay 2 tomara el primero
+# busca dentro del repositorio los archivos con extencion {.bar}, si hay mas de uno toma el primero
 before_script:
   - cd $CI_PROJECT_NAME
   - export BarFileName=`find -iname '*.bar' | head -1`
 
-# Indicar el nombre del Integration Server donde se quiere hacer el deploy
+# IntegrationServer: nombre del IS donde se quiere hacer el deploy
 variables:
-    IntegrationServer: "IntegrationManagement"
+    IntegrationServer: "MultiMisc"
 
-# Lista de las etapas que se ejecutaran durante el proceso, cada etapa puede tener n jobs,
-#    cada job puede ejecutarse en paralelo si se encuentran en la misma etapa.
-#
+# Lista de las etapas que se ejecutaran durante el proceso
 # verify: Verifica la existencia del Integration Server
-#
-# build: Envia el archivo .bar al servidor del IIB
-#
-# deploy: Ejecuta el comando mqsideploy tomando el archivo .bar en el Integration Server
-#
+# send: Envia el archivo .bar a los servidores IIB
+# deploy: Ejecuta el comando mqsideploy tomando el archivo .bar
 # clean: elimina el archivo .bar del servidor
+
 stages:
   - verify
-  - build
+  - send
   - deploy
   - clean
 
-verify_IS_DEVL:
+# proceso para devl ref al branch master
+verify_devl:
   stage: verify
   script:
-    - $D_SSH_CHECK_IS $IntegrationServer
+    - ssh -oHostKeyAlgorithms=+ssh-dss -i ~/.ssh/id_rsa -T mqbrkrs@devl028ms06.itesm.mx /home/mqbrkrs/CI_CD/scripts/checkIS.sh $IntegrationServer
   only:
     refs:
       - master
     changes:
-# Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
+      - "**/*.bar"
+sendBarFile_devl:
+  stage: send
+  script:
+    - scp -oHostKeyAlgorithms=+ssh-dss -i ~/.ssh/id_rsa -r $BarFileName mqbrkrs@devl028ms06.itesm.mx:/home/mqbrkrs/CI_CD/deployBars
+  only:
+    refs:
+      - master
+  needs: ["verify_devl"]
+deploy_devl:
+  stage: deploy
+  script:
+    - ssh -oHostKeyAlgorithms=+ssh-dss -i ~/.ssh/id_rsa -T mqbrkrs@devl028ms06.itesm.mx /home/mqbrkrs/CI_CD/scripts/runDeploy.sh $BarFileName $IntegrationServer
+  only:
+    refs:
+      - master
+  needs: ["sendBarFile_devl"]
+clean_devl:
+  stage: clean
+  script:
+    - ssh -oHostKeyAlgorithms=+ssh-dss -i ~/.ssh/id_rsa -T mqbrkrs@devl028ms06.itesm.mx /home/mqbrkrs/CI_CD/scripts/cleanAll.sh $BarFileName
+  only:
+    refs:
+      - master
+  needs: ["deploy_devl"]
 
-verify_IS_PPRD:
+# proceso para pprd
+verify_pprd:
   stage: verify
   script:
-    - $Q_SSH_CHECK_IS $IntegrationServer
+    - ssh -oHostKeyAlgorithms=+ssh-dss -i ~/.ssh/id_rsa -T mqbrkrs@pprd028ms12.itesm.mx /home/mqbrkrs/CI_CD/scripts/checkIS.sh $IntegrationServer
   only:
     refs:
       - pprd
     changes:
-# Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
-
-sendFiles_DEVL:
-  stage: build
+      - "**/*.bar"
+sendBarFile_pprd:
+  stage: send
   script:
-    - $SSH_ALGORITHM $BarFileName $D_SSH_CREDENTIALS
-  when: on_success
-  retry: 2
-  only:
-    refs:
-      - master
-    changes:
-# Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
-
-sendFiles_PPRD:
-  stage: build
-  script:
-    - $SSH_ALGORITHM $BarFileName $Q_SSH_CREDENTIALS
-  when: on_success
-  retry: 2
+    - scp -oHostKeyAlgorithms=+ssh-dss -i ~/.ssh/id_rsa -r $BarFileName mqbrkrs@pprd028ms12.itesm.mx:/home/mqbrkrs/CI_CD/deployBars
   only:
     refs:
       - pprd
-    changes:
-# Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
-
-deploy_DEVL:
+  needs: ["verify_pprd"]
+deploy_pprd:
   stage: deploy
   script:
-    - $D_SSH_DEPLOY $BarFileName $IntegrationServer
-  when: on_success
+    - ssh -oHostKeyAlgorithms=+ssh-dss -i ~/.ssh/id_rsa -T mqbrkrs@pprd028ms12.itesm.mx /home/mqbrkrs/CI_CD/scripts/runDeploy.sh $BarFileName $IntegrationServer
   only:
     refs:
-      - master
-    changes:
-# Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
+      - pprd
+  needs: ["sendBarFile_pprd"]
+clean_pprd:
+  stage: clean
+  script:
+    - ssh -oHostKeyAlgorithms=+ssh-dss -i ~/.ssh/id_rsa -T mqbrkrs@pprd028ms12.itesm.mx /home/mqbrkrs/CI_CD/scripts/cleanAll.sh $BarFileName
+  only:
+    refs:
+      - pprd
+  needs: ["deploy_pprd"]
 
-deploy_PPRD:
+# proceso para prod
+
+# proceso para prod alestra
+# nodo A
+verify_NodeA:
+  stage: verify
+  script:
+    - ssh -i ~/.ssh/id_rsa -T iibadmin@prod028ms28.itesm.mx /home/iibadmin/CI_CD/scripts/checkIS.sh $IntegrationServer
+  only:
+    refs:
+      - prod-alestra
+    changes:
+      - "**/*.bar"
+sendBarFile_NodeA:
+  stage: send
+  script:
+    - scp -i ~/.ssh/id_rsa -r $BarFileName iibadmin@prod028ms28.itesm.mx:/home/iibadmin/CI_CD/deployBars
+  only:
+    refs:
+      - prod-alestra
+  needs: ["verify_NodeA"] 
+deploy_NodeA:
   stage: deploy
   script:
-    - $Q_SSH_DEPLOY $BarFileName $IntegrationServer
-  when: on_success
+    - ssh -i ~/.ssh/id_rsa -T iibadmin@prod028ms28.itesm.mx /home/iibadmin/CI_CD/scripts/runDeploy.sh $BarFileName $IntegrationServer
   only:
     refs:
-      - pprd
-    changes:
-# Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
-
-clean_DEVL:
+      - prod-alestra
+  needs: ["sendBarFile_NodeA"]
+clean_NodeA:
   stage: clean
   script:
-    - $D_SSH_CLEAN $BarFileName
-  when: on_success
+    - ssh -i ~/.ssh/id_rsa -T iibadmin@prod028ms28.itesm.mx /home/iibadmin/CI_CD/scripts/cleanAll.sh $BarFileName
   only:
     refs:
-      - master
-    changes:
-# Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
+      - prod-alestra
 
-clean_PPRD:
-  stage: clean
-  script: 
-    - $Q_SSH_CLEAN $BarFileName
-  when: on_success
+# nodo B
+verify_NodeB:
+  stage: verify
+  script:
+    - ssh -i ~/.ssh/id_rsa -T iibadmin@prod028ms29.itesm.mx /home/iibadmin/CI_CD/scripts/checkIS.sh $IntegrationServer
   only:
     refs:
-      - pprd
+      - prod-alestra
     changes:
-# Cambiar el nombre, por el nombre del proyecto
-      - getBrokerInfo/*.bar
-      
+      - "**/*.bar"
+sendBarFile_NodeB:
+  stage: send
+  script:
+    - scp -i ~/.ssh/id_rsa -r $BarFileName iibadmin@prod028ms29.itesm.mx:/home/iibadmin/CI_CD/deployBars
+  only:
+    refs:
+      - prod-alestra
+  needs: ["verify_NodeB"]
+deploy_NodeB:
+  stage: deploy
+  script:
+    - ssh -i ~/.ssh/id_rsa -T iibadmin@prod028ms29.itesm.mx /home/iibadmin/CI_CD/scripts/runDeploy.sh $BarFileName $IntegrationServer
+  only:
+    refs:
+      - prod-alestra
+  needs: ["sendBarFile_NodeB"]
+clean_NodeB:
+  stage: clean
+  script:
+    - ssh -i ~/.ssh/id_rsa -T iibadmin@prod028ms29.itesm.mx /home/iibadmin/CI_CD/scripts/cleanAll.sh $BarFileName
+  only:
+    refs:
+      - prod-alestra
